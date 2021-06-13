@@ -35,7 +35,7 @@ Connect-AzureAD -Credential $CloudCred
 Write-Host "Exporting tenant Azure AD user list to CSV file"
 $TenantName = Read-Host -Prompt "`nEnter tenant name"
 
-# Build report path and CSV file name
+# Set output path and report file name
 #--------------------------------------
 $CSVpath = ".\CSVreports"
 
@@ -54,21 +54,21 @@ $ExportCSV="$CSVpath\$FileName-$TenantName-$((Get-Date -format yyyy-MMM-dd-ddd` 
 
 # Define report fields
 #-----------------------
-$AADproperties ="DisplayName","UserPrincipalName","DirSyncEnabled","ObjectType","UserType","City","State","Country"
+$ReportProperties ="DisplayName","UserPrincipalName","DirSyncEnabled","ObjectType","UserType","City","State","Country"
 
 # Generate report and export to CSV file
 #----------------------------------------
 If (test-path $CSVpath)
 {
-Get-AzureADUser | Select-Object -Property $AADproperties | Export-Csv -Path $ExportCSV
+Get-AzureADUser | Select-Object -Property $ReportProperties | Export-Csv -Path $ExportCSV
 }
 else {
     Write-Host `nUnable to create report path $CSVpath -ForegroundColor Yellow
 }
 
 
-# Show generated report name and absolute path location
-#-------------------------------------------------------
+# Show generated report path and file name
+#------------------------------------------
 #$AbsolutePath = $ScriptPath.Trim($ScriptName) + $ExportCSV.trim(".\")
 If (test-path $ExportCSV -PathType Leaf)
 {
