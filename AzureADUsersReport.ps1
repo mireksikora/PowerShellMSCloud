@@ -10,9 +10,25 @@ Description:    Get AzureAD user attributes and save them to CSV file
 
 # Connect to Microsoft Azure AD
 #---------------------------------
-Import-Module AzureAD
-$AzureADcred = Get-Credential
-Connect-AzureAD -Credential $AzureADcred
+$RequiredModule=AzureAD 
+$Module=Get-Module -Name $RequiredModule -ListAvailable
+If($Module.count -eq 0)
+{
+    Write-Host $RequiredModule module is not available -ForegroundColor Yellow
+    $Confirm= Read-Host Are you sure you want to install module? [Y] Yes [N] No
+    If($Confirm -match "[yY]")
+    {
+        Install-Module $RequiredModule -Force -Scope AllUsers
+    }
+    else {
+        Write-Host $RequiredModule module is required to connect to Microsoft Cloud. Please install module using Install-Module comlet.
+        Exit
+    }
+}
+
+Import-Module $RequiredModule
+$CloudCred = Get-Credential
+Connect-AzureAD -Credential $CloudCred
 
 # Get tenant name from the user
 #---------------------------------
@@ -30,9 +46,7 @@ If (!(test-path $CSVpath))
 }
 
 $ScriptName = $MyInvocation.MyCommand.Name
-#Write-Host Script name = $ScriptName
 $FileName = $ScriptName.trim(".ps1")
-#Write-Host FileName = $FileName
 #$ScriptPath =  $MyInvocation.MyCommand.Definition 
 #Write-Host Script path = $ScriptPath.Trim($ScriptName)
 
