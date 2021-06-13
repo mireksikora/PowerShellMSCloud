@@ -29,12 +29,11 @@ If (!(test-path $CSVpath))
     Write-Host `nFolder $CSVpath created
 }
 
-
 $ScriptName = $MyInvocation.MyCommand.Name
 #Write-Host Script name = $ScriptName
 $FileName = $ScriptName.trim(".ps1")
 #Write-Host FileName = $FileName
-$ScriptPath =  $MyInvocation.MyCommand.Definition 
+#$ScriptPath =  $MyInvocation.MyCommand.Definition 
 #Write-Host Script path = $ScriptPath.Trim($ScriptName)
 
 $ExportCSV="$CSVpath\$FileName-$TenantName-$((Get-Date -format yyyy-MMM-dd-ddd` hh-mm` tt).ToString()).csv"
@@ -53,21 +52,20 @@ Get-AzureADUser | Select-Object -Property $AADproperties | Export-Csv -Path $Exp
 
 # Show generated report name and absolute path location
 #-------------------------------------------------------
-Write-Host ""
-Write-Host Saving CSV file to: $ExportCSV
-$AbsolutePath = $ScriptPath.Trim($ScriptName) + $ExportCSV.trim(".\")
+#$AbsolutePath = $ScriptPath.Trim($ScriptName) + $ExportCSV.trim(".\")
 If (test-path $ExportCSV -PathType Leaf)
 {
-    Write-Host Report generated successfully
+    Write-Host $ExportCSV
+    Write-Host Report generated successfully -ForegroundColor Green
 }
 else {
-    Write-Host Error: Unable to create file to $ExportCSV
+    Write-Host Error: Unable to create file $ExportCSV -ForegroundColor Yellow
 }
 
 # Disconnect from Microsoft Azure AD
 #--------------------------------------
 Write-Host "`nDisconnecting from Azure AD`n"
-Disconnect-AzureAD
+Disconnect-AzureAD | Out-Null
 
 #end of script
 
