@@ -42,7 +42,7 @@ $CSVpath = ".\CSVreports"
 If (!(test-path $CSVpath))
 {
     New-Item -ItemType Directory -Path $CSVpath | Out-Null
-    Write-Host `nFolder $CSVpath created
+    #Write-Host `nFolder $CSVpath created
 }
 
 $ScriptName = $MyInvocation.MyCommand.Name
@@ -62,6 +62,9 @@ If (test-path $CSVpath)
 {
 Get-AzureADUser | Select-Object -Property $AADproperties | Export-Csv -Path $ExportCSV
 }
+else {
+    Write-Host `nUnable to create report path $CSVpath -ForegroundColor Yellow
+}
 
 
 # Show generated report name and absolute path location
@@ -70,10 +73,10 @@ Get-AzureADUser | Select-Object -Property $AADproperties | Export-Csv -Path $Exp
 If (test-path $ExportCSV -PathType Leaf)
 {
     Write-Host $ExportCSV
-    Write-Host Report generated successfully -ForegroundColor Green
+    Write-Host `nReport generated successfully -ForegroundColor Green
 }
 else {
-    Write-Host Error: Unable to create file $ExportCSV -ForegroundColor Yellow
+    Write-Host `nError: Unable to create file $ExportCSV -ForegroundColor Yellow
 }
 
 # Disconnect from Microsoft Azure AD
