@@ -19,7 +19,9 @@ param
     [switch] $Account,
     [switch] $Location,
     [switch] $All,
-    [string] $TenantName
+    [string] $TenantName,
+    [string] $UserName,
+    [string] $Password
 )
 
 # Connect to Microsoft Cloud
@@ -41,7 +43,16 @@ If($Module.count -eq 0)
 }
 
 Import-Module $RequiredModule
-$CloudCred = Get-Credential
+
+If(($UserName -ne "") -and ($Password -ne ""))
+{
+    $SecuredPassword = ConvertTo-SecureString -AsPlainText $Password -Force
+    $CloudCred = New-Object System.Management.Automation.PSCredential $UserName,$SecuredPassword
+}
+else {
+    $CloudCred = Get-Credential    
+}
+
 Connect-AzureAD -Credential $CloudCred
 
 # Set output path and file name
@@ -65,7 +76,7 @@ $ExportCSV="$CSVpath\$FileName-$TenantName-$((Get-Date -format yyyy-MMM-dd-ddd` 
 # Define report fields
 #-----------------------
 
-$ReportProperties ="ObjectId","ObjectType","UserType","DisplayName","UserPrincipalName","AccountEnabled","DirSyncEnabled","UserState"    #basic
+$ReportProperties ="DisplayName","UserPrincipalName","ObjectType","UserType","AccountEnabled","DirSyncEnabled","UserState"    #basic
 
 If($Account.IsPresent) {
 $ReportProperties ="DisplayName","UserPrincipalName","AccountEnabled","DirSyncEnabled","Mail","UserState","UserStateChangedOn","CreationType","AssignedLicenses","DeletionTimestamp"    #account
