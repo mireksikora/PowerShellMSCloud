@@ -18,7 +18,8 @@ param
     [switch] $Basic, #default
     [switch] $Account,
     [switch] $Location,
-    [switch] $All
+    [switch] $All,
+    [string] $TenantName
 )
 
 # Connect to Microsoft Cloud
@@ -45,8 +46,11 @@ Connect-AzureAD -Credential $CloudCred
 
 # Set output path and file name
 #-------------------------------
+If($TenantName -eq "")
+{
 Write-Host "Exporting tenant Azure AD user list to CSV file"
 $TenantName = Read-Host -Prompt "`nEnter tenant name"
+}
 
 $CSVpath = ".\CSVreports"
 If (!(test-path $CSVpath))
