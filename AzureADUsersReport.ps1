@@ -8,9 +8,22 @@ Description:    Get AzureAD user attributes and save them to CSV file
 #Install-Module AzureAD -Force -Scope AllUsers
 #Update-Module AzureAD
 
-# Connect to Microsoft Azure AD
-#---------------------------------
-$RequiredModule=AzureAD 
+
+#Define parameters
+#-------------------
+[CmdletBinding()]
+param
+(
+    [Parameter(Mandatory = $false)]
+    [switch] $Basic, #default
+    [switch] $Account,
+    [switch] $Location,
+    [switch] $All
+)
+
+# Connect to Microsoft Cloud
+#----------------------------
+$RequiredModule="AzureAD" 
 $Module=Get-Module -Name $RequiredModule -ListAvailable
 If($Module.count -eq 0)
 {
@@ -30,31 +43,37 @@ Import-Module $RequiredModule
 $CloudCred = Get-Credential
 Connect-AzureAD -Credential $CloudCred
 
-# Get tenant name from the user
-#---------------------------------
+# Set output path and file name
+#-------------------------------
 Write-Host "Exporting tenant Azure AD user list to CSV file"
 $TenantName = Read-Host -Prompt "`nEnter tenant name"
 
-# Set output path and report file name
-#--------------------------------------
 $CSVpath = ".\CSVreports"
-
 If (!(test-path $CSVpath))
 {
     New-Item -ItemType Directory -Path $CSVpath | Out-Null
-    #Write-Host `nFolder $CSVpath created
 }
 
 $ScriptName = $MyInvocation.MyCommand.Name
 $FileName = $ScriptName.trim(".ps1")
-#$ScriptPath =  $MyInvocation.MyCommand.Definition 
-#Write-Host Script path = $ScriptPath.Trim($ScriptName)
-
 $ExportCSV="$CSVpath\$FileName-$TenantName-$((Get-Date -format yyyy-MMM-dd-ddd` hh-mm` tt).ToString()).csv"
 
 # Define report fields
 #-----------------------
-$ReportProperties ="DisplayName","UserPrincipalName","DirSyncEnabled","ObjectType","UserType","City","State","Country"
+
+$ReportProperties ="ObjectId","ObjectType","UserType","DisplayName","UserPrincipalName","AccountEnabled","DirSyncEnabled","UserState"    #basic
+
+If($Account.IsPresent) {
+$ReportProperties ="DisplayName","UserPrincipalName","AccountEnabled","DirSyncEnabled","Mail","UserState","UserStateChangedOn","CreationType","AssignedLicenses","DeletionTimestamp"    #account
+}
+
+If($Location.IsPresent) {
+$ReportProperties ="DisplayName","UserPrincipalName","CompanyName","PhysicalDeliveryOfficeName","Department","StreetAddress","City","State","PostalCode","Country","TelephoneNumber","FacsimileTelephoneNumber","UsageLocation","PreferredLanguage" #location
+}
+
+If($all.IsPresent) {
+$ReportProperties ="*" #all
+}
 
 # Generate report and export to CSV file
 #----------------------------------------
@@ -63,16 +82,14 @@ If (test-path $CSVpath)
 Get-AzureADUser | Select-Object -Property $ReportProperties | Export-Csv -Path $ExportCSV
 }
 else {
-    Write-Host `nUnable to create report path $CSVpath -ForegroundColor Yellow
+    Write-Host `nFolder $CSVpath not found -ForegroundColor Yellow
 }
 
-
-# Show generated report path and file name
-#------------------------------------------
-#$AbsolutePath = $ScriptPath.Trim($ScriptName) + $ExportCSV.trim(".\")
+# Show report path and file name
+#--------------------------------
 If (test-path $ExportCSV -PathType Leaf)
 {
-    Write-Host $ExportCSV
+    Write-Host CSV file saved to: $ExportCSV
     Write-Host `nReport generated successfully -ForegroundColor Green
 }
 else {
