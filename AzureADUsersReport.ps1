@@ -73,8 +73,8 @@ $ScriptName = $MyInvocation.MyCommand.Name
 $FileName = $ScriptName.trim(".ps1")
 $ExportCSV="$CSVpath\$FileName-$TenantName-$((Get-Date -format yyyy-MMM-dd-ddd` hh-mm` tt).ToString()).csv"
 
-# Define report fields
-#-----------------------
+# Set report fields based in input parameters
+#-----------------------------------------------
 
 $ReportProperties ="DisplayName","UserPrincipalName","ObjectType","UserType","AccountEnabled","DirSyncEnabled","UserState"    #basic
 
@@ -86,7 +86,7 @@ If($Location.IsPresent) {
 $ReportProperties ="DisplayName","UserPrincipalName","CompanyName","PhysicalDeliveryOfficeName","Department","StreetAddress","City","State","PostalCode","Country","TelephoneNumber","FacsimileTelephoneNumber","UsageLocation","PreferredLanguage" #location
 }
 
-If($all.IsPresent) {
+If($All.IsPresent) {
 $ReportProperties ="*" #all
 }
 
