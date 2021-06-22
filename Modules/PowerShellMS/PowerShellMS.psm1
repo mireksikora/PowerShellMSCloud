@@ -3,7 +3,7 @@
 # Windows 10 default module location (global for all users) 
 # C:\Windows\System32\WindowsPowerShell\v1.0\Modules\PowerShellMS
 
-function ConnectToMsolService {
+function ConnectToMSOLService {
 #===============================
 
 param
@@ -40,7 +40,7 @@ If(($UserName -ne "") -and ($Password -ne "")){
         $CloudCred = Get-Credential    
 }
 
-Connect-MsolService -Credential $CloudCred
+Connect-MSOLService -Credential $CloudCred
 }
 
 function DisconnectFromMSOLService {
