@@ -35,10 +35,15 @@ a) Call without parameters witll prompt for ID/Password, and tenant name. By det
 b) Pass parameters examples for report type, tenant name or id/password
 
 ./AzureADUsersReport.ps1 -Basic
+
 ./AzureADUsersReport.ps1 -Account
+
 ./AzureADUsersReport.ps1 -Location
+
 ./AzureADUsersReport.ps1 -All
+
 ./AzureADUsersReport.ps1 -Location -tenantname "Oracle"
+
 ./AzureADUsersReport.ps1 -Account -tenantname "Oracle" -UserName adminuser@domain.com -Password XXX
 
 
@@ -49,9 +54,13 @@ AzureGroupReport.ps1
 Fully functional v1.0 is now completed. Call examples with and without parameters:
 
 ./AzureGroupReport.ps1
+
 ./AzureGroupReport.ps1 -GroupTypes (default if no parameters are passed)
+
 ./AzureGroupReport.ps1 -GroupMembers
+
 ./AzureGroupReport.ps1 -GroupMembers -tenantname "IBM"
+
 ./AzureGroupReport.ps1 -GroupOwners -UserName adminuser@domain.com -Password YYY
 
 
