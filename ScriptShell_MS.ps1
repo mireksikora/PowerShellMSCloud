@@ -28,7 +28,9 @@ param
 # Connect to cloud and define variables 
 #---------------------------------------
 import-module PowerShellMS
-ConnectToAzureAD $UserName $Password 
+ConnectToAzureAD $UserName $Password
+# or
+# ConnectToMSOLService $UserName $Password
 $CSVPath,$ExportCSV = SetOutputPathFilename $TenantName
 
 # Set report result based on input parameters
@@ -59,10 +61,12 @@ If($param_4.IsPresent) {    #param_4
 } 
 
 
-# Export to CVS and show result. Disconnect from cloud
+# Export to CSV and show result. Disconnect from cloud
 #------------------------------------------------------
 ExportToCSV $ResultArray $CSVPath $ExportCSV
 ShowScriptResult $ExportCSV
 DisconnectFromAzureAD
+# or
+# DisconnectFromMSOLService
 #end of script
 
