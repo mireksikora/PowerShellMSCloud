@@ -1,7 +1,7 @@
 <# 
 Author:         Mirek Sikora
 Date:           2021/06/16 (YYYY/MM/DD)
-Description:    Get Azure Group Report
+Description:    Azure Group Reports
 #>
 
 #Define parameters
@@ -68,15 +68,51 @@ $FileName = $ScriptName.trim(".ps1")
 $ExportCSV="$CSVpath\$FileName-$TenantName-$((Get-Date -format yyyy-MMM-dd-ddd` hh-mm` tt).ToString()).csv"
 
 # Run report based on input criteria
-#------------------------------
+#------------------------------------
+If(($GroupTypes -ne $true) -and ($GroupMembers -ne $true) -and ($GroupOwners -ne $true))
+    { 
+        $GroupTypes = $true #set default report in none selected
+    }
 
-If($GroupTypes.IsPresent) {                 #default
-    $groups=Get=ZaureADGroup -All $true
-}
+    If($GroupTypes.IsPresent) {      # Group types report       
+        $GroupProperty = "ObjectID","ObjectType","Description","DisplayName","DirSyncEnabled","LastDirSyncTime","MailEnabled","Mail","MailNickName","SecurityEnabled"
+        $groups=Get-AzureADGroup -All $true | Select-Object $GroupProperty
+    
+        $ResultArray=@()
+        ForEach ($group in $groups) {
+            $GCount += 1
+            $GDisplayName = $group.DisplayName
+            Write-Progress -Activity "Processing group count: $GCount   group name: $GDisplayName"
+    
+            $GID = $group.ObjectID
+            $MSG = Get-AzureADMSGroup -Id $GID | Select-Object -Property "GroupTypes", "Visibility"
+            $O365Group = $MSG.GroupTypes[0]
+            if($null -ne $O365Group) {
+                $O365Group = $O365Group.replace('Unified','TRUE')
+            }
+            else {
+                $O365Group = "FALSE"
+            }
+      
+            $UserObject = New-Object PSCustomObject
+            $UserObject | Add-Member -MemberType NoteProperty -name "Object Type" -value $group.ObjectType
+            $UserObject | Add-Member -MemberType NoteProperty -name "Description" -value $group.Description
+            $UserObject | Add-Member -MemberType NoteProperty -name "Group Name" -value $group.DisplayName
+            $UserObject | Add-Member -MemberType NoteProperty -name "DirSyncEnabled" -value $group.DirSyncEnabled
+            $UserObject | Add-Member -MemberType NoteProperty -name "DirSyncTime" -value $group.LastDirSyncTime
+            $UserObject | Add-Member -MemberType NoteProperty -name "Security Enabled" -value $group.SecurityEnabled
+            $UserObject | Add-Member -MemberType NoteProperty -name "Mail Enabled" -value $group.MailEnabled
+            $UserObject | Add-Member -MemberType NoteProperty -name "O365 Group" -value $O365Group
+            $UserObject | Add-Member -MemberType NoteProperty -name "Visibility" -value $MSG.Visibility
+            $UserObject | Add-Member -MemberType NoteProperty -name "Email" -value $group.Mail
+            $UserObject | Add-Member -MemberType NoteProperty -name "Email NickName" -value $group.MailNickName
+            $ResultArray += $UserObject
+        }    
+    }
 
 
 
-If($GroupMembers.IsPresent) {
+If($GroupMembers.IsPresent) {        # Group members report
     $groups=Get-AzureADGroup -All $true
     $ResultArray=@()
     ForEach ($group in $groups) {
@@ -100,7 +136,7 @@ If($GroupMembers.IsPresent) {
 
 
 
-If($GroupOwners.IsPresent) {
+If($GroupOwners.IsPresent) {         # Group owners report
     $groups=Get-AzureADGroup -All $true
     $ResultArray=@()
     ForEach ($group in $groups) {
@@ -148,7 +184,7 @@ else {
 }
 
 # Disconnect from Microsoft Azure AD
-#--------------------------------------
+#------------------------------------
 Write-Host "`nDisconnecting from Azure AD`n"
 Disconnect-AzureAD | Out-Null
 
