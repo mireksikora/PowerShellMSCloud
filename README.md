@@ -18,7 +18,9 @@ At this time script has no parameters. I am planning to include few parametres i
 Parameters have been added now.
 
 All scripts will require at least three parameters: username, password, tenant name. Parameters can be passed during call or the script will prompt for them during runtime. Additional optional parameter can be passed during call, and it is based on report type associated with PS script. For example you can call AzureADUsersReport.ps1 with -Location as parameter. It will generate user report with fields associated with location like city, state, zip code, etc. Another report for example AzureGroupReport.ps1 will have -GroupTypes and -GroupMembers as available parameters. Only one optional parameter (based on report parameter/criteria) can be passed to a script. Once scripts execute successfully, it will gernerate CSV file in the following format:
+
 ".\CSVreports\ScriptName-TenantName-YYYYMMMDD_HHMM.csv"
+
 Example script name: ".\CSVreports\AzureADUsersReport-Oracle-20210622_0334.csv"
 
 
@@ -58,18 +60,25 @@ To reduce script size Module has been created. The Module, PowerShellMS.psm1, in
 Beginning section that was ported to Module:
 ---------------------------------------------
 ConnectToAzureAD $UserName $Password
+
 ConnectToMsolService $UserName $Password
+
 $CSVPath,$ExportCSV = SetOutputPathFilename $TenantName
 
 Middle section will have unique script code in here.
 ----------------------------------------------------
 
+
 End section that was ported to Module:
 ---------------------------------------
 ExportToCSV $ResultArray $CSVPath $ExportCSV
+
 ShowScriptResult $ExportCSV
+
 DisconnectFromAzureAD
+
 DisconnectFromMSOLService
+
 
 Base script shell has been created to serve as a starting point for new scripts, ScriptShell_MS.ps1
 
