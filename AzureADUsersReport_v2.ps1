@@ -110,7 +110,7 @@ If($All.IsPresent) {       #all
     $ResultArray = Get-AzureADUser | Select-Object -Property $ReportProperties
 }
 
-# Export to CVS and show result. Disconnect from cloud
+# Export to CSV and show result. Disconnect from cloud.
 #------------------------------------------------------
 ExportToCSV $ResultArray $CSVPath $ExportCSV
 ShowScriptResult $ExportCSV
