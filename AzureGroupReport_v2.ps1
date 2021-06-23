@@ -26,8 +26,8 @@ import-module PowerShellMS
 If($MFA -eq $false) {
     ConnectToAzureAD $UserName $Password
 }   Else {
-    import-module AzureAD
-    Connect-AzureAD
+        import-module AzureAD
+        Connect-AzureAD
 }
 
 $CSVPath,$ExportCSV = SetOutputPathFilename $TenantName

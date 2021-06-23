@@ -20,6 +20,7 @@ param
     [switch] $Account,
     [switch] $Location,
     [switch] $All,         #default
+    [switch] $MFA,
     [string] $TenantName,
     [string] $UserName,
     [string] $Password
@@ -28,7 +29,12 @@ param
 # Connect to cloud and define variables 
 #---------------------------------------
 import-module PowerShellMS
-ConnectToAzureAD $UserName $Password 
+If($MFA -eq $false) {
+    ConnectToAzureAD $UserName $Password
+}   Else {
+        import-module AzureAD
+        Connect-AzureAD
+}
 $CSVPath,$ExportCSV = SetOutputPathFilename $TenantName
 
 # Set report result based on input parameters
