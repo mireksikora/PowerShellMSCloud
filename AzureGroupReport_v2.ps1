@@ -13,6 +13,7 @@ param
     [switch] $GroupTypes, #default
     [switch] $GroupMembers,
     [switch] $GroupOwners,
+    [switch] $MFA,
     [string] $TenantName,
     [string] $UserName,
     [string] $Password
@@ -21,7 +22,14 @@ param
 # Connect to cloud and define variables 
 #---------------------------------------
 import-module PowerShellMS
-ConnectToAzureAD $UserName $Password 
+
+If($MFA -eq $false) {
+    ConnectToAzureAD $UserName $Password
+}   Else {
+    import-module AzureAD
+    Connect-AzureAD
+}
+
 $CSVPath,$ExportCSV = SetOutputPathFilename $TenantName
 
 # Run report based on input criteria
@@ -39,7 +47,8 @@ If(($GroupTypes -ne $true) -and ($GroupMembers -ne $true) -and ($GroupOwners -ne
         ForEach ($group in $groups) {
             $GCount += 1
             $GDisplayName = $group.DisplayName
-            Write-Progress -Activity "Processing group count: $GCount   group name: $GDisplayName"
+            $GTotal = $groups.count
+            Write-Progress -Activity "Processing group count: $GCount of $GTotal group name: $GDisplayName"
     
             $GID = $group.ObjectID
             $MSG = Get-AzureADMSGroup -Id $GID | Select-Object -Property "GroupTypes", "Visibility"
@@ -76,7 +85,9 @@ If($GroupMembers.IsPresent) {        # Group members report
         $members = Get-AzureADGroupMember -ObjectId $Group.ObjectID -All $true
         $GCount += 1
         $GDisplayName = $group.DisplayName
-        Write-Progress -Activity "Processing group count: $GCount   group name: $GDisplayName"
+        $GTotal = $groups.count
+
+        Write-Progress -Activity "Processing group count: $GCount of $GTotal group name: $GDisplayName"
         foreach ($member in $members) {
                 $UserObject = New-Object PSCustomObject
                 $UserObject | Add-Member -MemberType NoteProperty -name "Group Name" -value $group.DisplayName
@@ -100,7 +111,9 @@ If($GroupOwners.IsPresent) {         # Group owners report
         $owners = Get-AzureADGroupOwner -ObjectId $Group.ObjectID -All $true
         $GCount += 1
         $GDisplayName = $group.DisplayName
-        Write-Progress -Activity "Processing group count: $GCount   group name: $GDisplayName"
+        $GTotal = $groups.count
+
+        Write-Progress -Activity "Processing group count: $GCount of $GTotal group name: $GDisplayName"
         foreach ($owner in $owners) {
                 $UserObject = New-Object PSCustomObject
                 $UserObject | Add-Member -MemberType NoteProperty -name "Group Name" -value $group.DisplayName
