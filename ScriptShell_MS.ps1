@@ -29,14 +29,11 @@ param
 # Connect to cloud and define variables 
 #---------------------------------------
 import-module PowerShellMS
-If($MFA -eq $false) {
-    ConnectToAzureAD $UserName $Password
-    # or
-    # ConnectToMSOLService $UserName $Password
-}   Else {
-    import-module AzureAD
-    Connect-AzureAD
-}
+If($MFA.IsPresent) { $MFAEnabled = $true } else { $MFAEnabled = $false}
+ConnectToAzureAD $MFAEnabled $UserName $Password 
+# or
+# ConnectToMSOLService $MFAEnabled $UserName $Password
+
 
 $CSVPath,$ExportCSV = SetOutputPathFilename $TenantName
 

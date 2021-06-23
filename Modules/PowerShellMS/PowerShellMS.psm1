@@ -9,6 +9,7 @@ function ConnectToMSOLService {
 param
 (
     [Parameter(Mandatory = $false)]
+    [string] $MFAEnabled,
     [string] $UserName,
     [string] $Password
 )
@@ -32,15 +33,19 @@ If($Module.count -eq 0)
 
 Import-Module $RequiredModule
 
-If(($UserName -ne "") -and ($Password -ne "")){
-    $SecuredPassword = ConvertTo-SecureString -AsPlainText $Password -Force
-    $CloudCred = New-Object System.Management.Automation.PSCredential $UserName,$SecuredPassword
+If($MFAEnabled -eq $true) {
+    Connect-MSOLService    
     }
-    else {
-        $CloudCred = Get-Credential    
+    ElseIf(($UserName -ne "") -and ($Password -ne "")){
+        $SecuredPassword = ConvertTo-SecureString -AsPlainText $Password -Force
+        $CloudCred = New-Object System.Management.Automation.PSCredential $UserName,$SecuredPassword
+        Connect-MSOLService -Credential $CloudCred
+        }
+        else {
+            $CloudCred = Get-Credential
+            Connect-MSOLService -Credential $CloudCred    
 }
 
-Connect-MSOLService -Credential $CloudCred
 }
 
 function DisconnectFromMSOLService {
@@ -54,6 +59,7 @@ function ConnectToAzureAD {
 param
 (
     [Parameter(Mandatory = $false)]
+    [string] $MFAEnabled,
     [string] $UserName,
     [string] $Password
 )
@@ -77,15 +83,19 @@ If($Module.count -eq 0)
 
 Import-Module $RequiredModule
 
-If(($UserName -ne "") -and ($Password -ne "")){
-    $SecuredPassword = ConvertTo-SecureString -AsPlainText $Password -Force
-    $CloudCred = New-Object System.Management.Automation.PSCredential $UserName,$SecuredPassword
+If($MFAEnabled -eq $true) {
+    Connect-AzureAD    
     }
-    else {
-        $CloudCred = Get-Credential    
+    ElseIf(($UserName -ne "") -and ($Password -ne "")) {
+        $SecuredPassword = ConvertTo-SecureString -AsPlainText $Password -Force
+        $CloudCred = New-Object System.Management.Automation.PSCredential $UserName,$SecuredPassword
+        Connect-AzureAD -Credential $CloudCred
+        }
+        else {
+            $CloudCred = Get-Credential
+            Connect-AzureAD -Credential $CloudCred    
 }
 
-Connect-AzureAD -Credential $CloudCred
 }
 
 function DisconnectFromAzureAD {

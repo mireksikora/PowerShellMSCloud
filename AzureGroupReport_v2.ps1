@@ -23,13 +23,8 @@ param
 #---------------------------------------
 import-module PowerShellMS
 
-If($MFA -eq $false) {
-    ConnectToAzureAD $UserName $Password
-}   Else {
-        import-module AzureAD
-        Connect-AzureAD
-}
-
+If($MFA.IsPresent) { $MFAEnabled = $true } else { $MFAEnabled = $false}
+ConnectToAzureAD $MFAEnabled $UserName $Password 
 $CSVPath,$ExportCSV = SetOutputPathFilename $TenantName
 
 # Run report based on input criteria
