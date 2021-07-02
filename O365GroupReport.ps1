@@ -1,6 +1,6 @@
 <# 
 Author:         Mirek Sikora
-Date:           2021/06/20 (YYYY/MM/DD)
+Date:           2021/07/02 (YYYY/MM/DD)
 Description:    Generate Cloud report and save it to CSV file
 #>
 
@@ -16,10 +16,10 @@ Description:    Generate Cloud report and save it to CSV file
 param
 (
     [Parameter(Mandatory = $false)]
-    [switch] $SecurityOnly,       #DisabledOnly user list
-    [switch] $DistributionListOnly,        #EnabledOnly user list
-    [switch] $MailEnabledSecurityOnly,       #EnforcedOnly user list
-    [switch] $All,                #All user list with MFA status
+    [switch] $SecurityOnly,                 # Security group list
+    [switch] $DistributionListOnly,         # Distribition List
+    [switch] $MailEnabledSecurityOnly,      # Mail Enabled Security group list
+    [switch] $All,                          # All groups list with included group types
     [switch] $MFA,
     [string] $TenantName,
     [string] $UserName,
@@ -41,28 +41,28 @@ If(($SecurityOnly -eq $false) -and ($DistributionListOnly -eq $false) -and ($Mai
     $All = $true        #default
 }
 
-If($All.IsPresent) {    #param All
+If($All.IsPresent) {    # List All goups and include group types
 
     $GroupProperties = "DisplayName","EmailAddress","GroupType","ManagedBy","Description"
     $ResultArray = Get-MsolGroup | select-object -property $GroupProperties
     $count=$ResultArray.count
 }
 
-If($SecurityOnly.IsPresent) {    #param SecurityOnly
+If($SecurityOnly.IsPresent) {    # Security Only goup list
 
     $GroupProperties = "DisplayName","EmailAddress","GroupType","ManagedBy","Description"
     $ResultArray = Get-MsolGroup | select-object -property $GroupProperties | where-object { $_.GroupType -eq "Security" }
     $count=$ResultArray.count
 }
 
-If($DistributionListOnly.IsPresent) {    #param DistributionListOnly
+If($DistributionListOnly.IsPresent) {    # Distribution List Only
 
     $GroupProperties = "DisplayName","EmailAddress","GroupType","ManagedBy","Description"
     $ResultArray = Get-MsolGroup | select-object -property $GroupProperties | where-object { $_.GroupType -eq "DistributionList" }
     $count=$ResultArray.count
 }
 
-If($MailEnabledSecurityOnly.IsPresent) {    #param ALL
+If($MailEnabledSecurityOnly.IsPresent) {    # Mail Enabled Security Only group list
 
     $GroupProperties = "DisplayName","EmailAddress","GroupType","ManagedBy","Description"
     $ResultArray = Get-MsolGroup | select-object -property $GroupProperties | where-object { $_.GroupType -eq "MailEnabledSecurity" }
@@ -74,7 +74,7 @@ If($MailEnabledSecurityOnly.IsPresent) {    #param ALL
 #------------------------------------------------------
 ExportToCSV $ResultArray $CSVPath $ExportCSV
 ShowScriptResult $ExportCSV
-Write-Host User count that matched criteria $count -ForegroundColor Yellow
+Write-Host Group count that matched criteria $count -ForegroundColor Yellow
 DisconnectFromMSOLService
 #end of script
 
