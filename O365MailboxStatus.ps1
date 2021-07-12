@@ -13,7 +13,7 @@ param
     [switch] $All,                  # All Mailboxes
     [switch] $SharedMBOnly,         # Shared Mailboxes only
     [switch] $UserMBOnly,           # User Mailboxes only
-    [switch] $InactiveMBOnly,      # Not Active Mailboxes (soft delete or disabled)
+    [switch] $InactiveMBOnly,       # Not Active Mailboxes (soft delete or disabled)
     [switch] $ActiveMBOnly,         # Active Mailboxes
     [switch] $MFA,
     [string] $TenantName,
@@ -126,9 +126,8 @@ If($UserMBOnly.IsPresent) {         # parameter User mailbox only
     $MailboxStatisticProperties = "DisconnectReason","ItemCount","TotalItemSize","DeletedItemCount","TotalDeletedItemSize","MailboxTypeDetail"
 
     foreach ($mailbox in $mailboxes) {
-        $mbstat = Get-EXOMailboxStatistics -userprincipalname $mailbox.UserPrincipalName | select-object $MailboxStatisticProperties | where-object {
-            $_.RecipientTypeDetails -eq "SharedMailbox"
-        }
+        $mbstat = Get-EXOMailboxStatistics -userprincipalname $mailbox.UserPrincipalName | select-object $MailboxStatisticProperties 
+
         $MBcount += 1
         $MBDisplayName = $mailbox.DisplayName
 
