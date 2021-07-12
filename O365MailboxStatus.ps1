@@ -36,7 +36,7 @@ $CSVPath,$ExportCSV = SetOutputPathFilename $TenantName
 #-----------------------------------------------
 
 If(($All -eq $false) -and ($SharedMBOnly -eq $false) -and ($UserMBOnly -eq $false) -and
-     ($NotActiveOnly -eq $false) -and ($ActiveOnly -eq $false)) {
+     ($InactiveOnly -eq $false) -and ($ActiveOnly -eq $false)) {
     $All = $true        #default
 }
 
@@ -153,6 +153,7 @@ If($UserMBOnly.IsPresent) {         # parameter User mailbox only
 
 If($InactiveMBOnly.IsPresent) {      # Not Active Mailboxes (soft delete or disabled)
 
+    Write-host "starting query, please wait.."
     $MailboxStatisticProperties = "DisplayName","DisconnectReason","MailboxTypeDetail","ItemCount","DeletedItemCount"
     $ResultArray = Get-EXOMailbox -resultsize unlimited | Get-EXOMailboxStatistics -properties $MailboxStatisticProperties | where-object {
         ( -not ([string]::IsNullOrEmpty($_.DisconnectReason)))
@@ -161,6 +162,7 @@ If($InactiveMBOnly.IsPresent) {      # Not Active Mailboxes (soft delete or disa
     $InactiveCount = $ResultArray.count
 
     If($InactiveCount -gt 0) {
+        Write-Host "Inactive mailboxes count: $InactiveCount" -ForegroundColor Yellow
         ExportToCSV $ResultArray $CSVPath $ExportCSV
     } else {
         Write-Host "Inactive mailboxes count: $InactiveCount" -ForegroundColor Yellow
@@ -169,6 +171,7 @@ If($InactiveMBOnly.IsPresent) {      # Not Active Mailboxes (soft delete or disa
 
 If($ActiveMBOnly.IsPresent) {         # Active Mailboxes (soft delete or disabled)
 
+    Write-host "starting query, please wait.."
     $MailboxStatisticProperties = "DisplayName","DisconnectReason","MailboxTypeDetail","ItemCount","DeletedItemCount"
     $ResultArray = Get-EXOMailbox -resultsize unlimited | Get-EXOMailboxStatistics -properties $MailboxStatisticProperties | where-object {
        ([string]::IsNullOrEmpty($_.DisconnectReason))
@@ -177,6 +180,7 @@ If($ActiveMBOnly.IsPresent) {         # Active Mailboxes (soft delete or disable
     $ActiveCount = $ResultArray.count
 
     If($ActiveCount -gt 0) {
+        Write-Host "Active mailboxes count: $ActiveCount" -ForegroundColor Yellow
         ExportToCSV $ResultArray $CSVPath $ExportCSV
     } else {
         Write-Host "Active mailboxes count: $ActiveCount" -ForegroundColor Yellow
@@ -192,7 +196,7 @@ If( -not ([string]::IsNullOrEmpty($ResultArray))) {
 DisconnectFromExchangeOnline
 
 $endTime = Get-Date -format G
-Write-Host "Script completed at $endTime.`n"
+Write-Host "Script completed at $endTime."
 Write-host "Time for the full run was: $( New-TimeSpan $startTime $endTime)."
 
 #end of script
