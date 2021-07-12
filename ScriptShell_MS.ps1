@@ -26,6 +26,9 @@ param
     [string] $Password
 )
 
+$startTime = Get-Date -format G
+Write-Host "The script started on $startTime"
+
 # Connect to cloud and define variables 
 #---------------------------------------
 import-module PowerShellMS
@@ -33,7 +36,8 @@ If($MFA.IsPresent) { $MFAEnabled = $true } else { $MFAEnabled = $false}
 ConnectToAzureAD $MFAEnabled $UserName $Password 
 # or
 # ConnectToMSOLService $MFAEnabled $UserName $Password
-
+# or
+# ConnectToExchangeOnline $MFAEnabled $UserName $Password
 
 $CSVPath,$ExportCSV = SetOutputPathFilename $TenantName
 
@@ -67,10 +71,20 @@ If($param_4.IsPresent) {    #param_4
 
 # Export to CSV and show result. Disconnect from cloud
 #------------------------------------------------------
-ExportToCSV $ResultArray $CSVPath $ExportCSV
-ShowScriptResult $ExportCSV
+If( -not ([string]::IsNullOrEmpty($ResultArray))) {
+    ExportToCSV $ResultArray $CSVPath $ExportCSV
+    ShowScriptResult $ExportCSV
+}
+
 DisconnectFromAzureAD
 # or
 # DisconnectFromMSOLService
+#or
+# DisconnectFromExchangeOnline
+
+$endTime = Get-Date -format G
+Write-Host "Script completed at $endTime.`n"
+Write-host "Time for the full run was: $( New-TimeSpan $startTime $endTime)."
+
 #end of script
 
